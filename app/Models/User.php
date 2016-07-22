@@ -901,7 +901,6 @@ class User extends Model implements AuthenticatableContract, Messageable
                         'title' => "{$this->username}'s user page",
                         'user' => $this,
                         'body' => $text,
-                        'notifyReplies' => false,
                     ]
                 );
 
