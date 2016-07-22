@@ -223,6 +223,10 @@
                 @if (priv_check('ForumTopicModerate', $topic)->can())
                     @include('forum.topics._moderate_move', ['_topic' => $topic])
                 @endif
+
+                @if (Auth::check())
+                    @include('forum.topics._watch', ['_topic' => $topic, '_isWatching' => $isWatching])
+                @endif
             </div>
 
             <div class="forum-topic-nav__group forum-topic-nav__group--main">

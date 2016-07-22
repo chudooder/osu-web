@@ -28,6 +28,7 @@ use App\Models\Forum\PollOption;
 use App\Models\Forum\Post;
 use App\Models\Forum\Topic;
 use App\Models\Forum\TopicCover;
+use App\Models\Forum\TopicWatch;
 use App\Transformers\Forum\TopicCoverTransformer;
 use Auth;
 use Carbon\Carbon;
@@ -234,9 +235,19 @@ class TopicsController extends Controller
             new TopicCoverTransformer()
         );
 
+        $isWatching = TopicWatch::check($topic, Auth::user());
+
         return view(
             "forum.topics.{$template}",
-            compact('topic', 'posts', 'postsPosition', 'jumpTo', 'cover', 'pollSummary')
+            compact(
+                'cover',
+                'isWatching',
+                'jumpTo',
+                'pollSummary',
+                'posts',
+                'postsPosition',
+                'topic'
+            )
         );
     }
 
@@ -312,5 +323,20 @@ class TopicsController extends Controller
         } else {
             return error_popup(implode(' ', $star->validationErrors()->allMessages()));
         }
+    }
+
+    public function watch($id)
+    {
+        $topic = Topic::findOrFail($id);
+
+        priv_check('ForumView', $topic->forum)->ensureCan();
+
+        if (Request::input('watch') === '1') {
+            TopicWatch::add($topic, Auth::user());
+        } else {
+            TopicWatch::remove($topic, Auth::user());
+        }
+
+        return [];
     }
 }
