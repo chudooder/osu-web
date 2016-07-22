@@ -80,6 +80,32 @@ class TopicsController extends Controller
         return ['message' => trans('forum.topics.lock.locked-'.($lock === true ? '1' : '0'))];
     }
 
+    public function move($id)
+    {
+        $topic = Topic::findOrFail($id);
+        $destinationForum = Forum::findOrFail(Request::input('destination_forum_id'));
+
+        priv_check('ForumTopicModerate', $topic)->ensureCan();
+
+        if ($topic->moveTo($destinationForum)) {
+            return js_view('layout.ujs-reload');
+        } else {
+            abort(422);
+        }
+    }
+
+    public function pin($id)
+    {
+        $topic = Topic::findOrFail($id);
+
+        priv_check('ForumTopicModerate', $topic)->ensureCan();
+
+        $pin = Request::input('pin') !== '0';
+        $topic->pin($pin);
+
+        return ['message' => trans('forum.topics.pin.pinned-'.(int) $pin)];
+    }
+
     public function preview()
     {
         $forum = Forum::findOrFail(Request::input('forum_id'));
@@ -274,18 +300,6 @@ class TopicsController extends Controller
         }
     }
 
-    public function pin($id)
-    {
-        $topic = Topic::findOrFail($id);
-
-        priv_check('ForumTopicModerate', $topic)->ensureCan();
-
-        $pin = Request::input('pin') !== '0';
-        $topic->pin($pin);
-
-        return ['message' => trans('forum.topics.pin.pinned-'.(int) $pin)];
-    }
-
     public function voteFeature($topicId)
     {
         $star = FeatureVote::createNew([
@@ -297,20 +311,6 @@ class TopicsController extends Controller
             return ujs_redirect(route('forum.topics.show', $topicId));
         } else {
             return error_popup(implode(' ', $star->validationErrors()->allMessages()));
-        }
-    }
-
-    public function move($id)
-    {
-        $topic = Topic::findOrFail($id);
-        $destinationForum = Forum::findOrFail(Request::input('destination_forum_id'));
-
-        priv_check('ForumTopicModerate', $topic)->ensureCan();
-
-        if ($topic->moveTo($destinationForum)) {
-            return js_view('layout.ujs-reload');
-        } else {
-            abort(422);
         }
     }
 }
