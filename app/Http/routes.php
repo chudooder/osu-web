@@ -74,6 +74,9 @@ Route::get('/ranking/charts', ['as' => 'ranking-charts', 'uses' => 'RankingContr
 Route::get('/ranking/country', ['as' => 'ranking-country', 'uses' => 'RankingController@getCountry']);
 Route::get('/ranking/mapper', ['as' => 'ranking-mapper', 'uses' => 'RankingController@getMapper']);
 
+// replays section
+Route::get('/replays/{hash}', ['as' => 'replay.show', 'uses' => 'ReplaysController@getReplay']);
+
 // community section (forum will end up being a section of its own)
 Route::get('/community/forum', function () {
     return Redirect::to('/forum');
